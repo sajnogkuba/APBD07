@@ -46,4 +46,29 @@ public class DbService(IConfiguration configuration) : IDbService
             Address = reader.GetString(2)
         };
     }
+
+    public async Task<Product?> GetProductById(int id)
+    {
+        await using var connection = await GetConnection();
+        var command = new SqlCommand(
+            @"SELECT * FROM Product WHERE IdProduct = @id",
+            connection
+        );
+
+        command.Parameters.AddWithValue("@id", id);
+        var reader = await command.ExecuteReaderAsync();
+        
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        return new Product
+        {
+            Id = reader.GetInt32(0),
+            Name = reader.GetString(1),
+            Description = reader.GetString(2),
+            Price = reader.GetDecimal(3)
+        };
+    }
 }

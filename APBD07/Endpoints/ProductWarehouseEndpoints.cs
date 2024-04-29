@@ -32,6 +32,12 @@ public static class ProductWarehouseEndpoints
             return Results.NotFound($"Warehouse with id: {request.IdWarehouse} does not exist");
         }
 
+        var product = await db.GetProductById(request.IdProduct);
+        if (product is null)
+        {
+            return Results.NotFound($"Product with id: {request.IdProduct} does not exist");
+        }
+
         return Results.Created();
     }
 }
