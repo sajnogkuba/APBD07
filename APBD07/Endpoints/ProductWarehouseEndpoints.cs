@@ -50,6 +50,12 @@ public static class ProductWarehouseEndpoints
                                     $"and amount: {@request.Amount} does not exist");
         }
 
+        if (order.CreatedAt > request.CreatedAt)
+        {
+            return Results.BadRequest($"Your date must be later than the date on the order: {order.CreatedAt} " +
+                                      $"You type in: {request.CreatedAt}");
+        }
+
         return Results.Created(
             "ProductWarehouse",
             request
