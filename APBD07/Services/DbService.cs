@@ -126,4 +126,15 @@ public class DbService(IConfiguration configuration) : IDbService
             CreatedAt = reader.GetDateTime(6)
         };
     }
+
+    public async void UpdateOrderFulfilledAt(DateTime now)
+    {
+        await using var connection = await GetConnection();
+        var command = new SqlCommand(
+            @"UPDATE [ORDER] SET FulfilledAt = @date",
+            connection
+        );
+        command.Parameters.AddWithValue("@date", now);
+        await command.ExecuteNonQueryAsync();
+    }
 }

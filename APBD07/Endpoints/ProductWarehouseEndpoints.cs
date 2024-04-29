@@ -62,6 +62,8 @@ public static class ProductWarehouseEndpoints
             return Results.Conflict($"The order with id {order.Id} is already completed.");
         }
 
+        db.UpdateOrderFulfilledAt(DateTime.Now);
+
         return Results.Created(
             "ProductWarehouse",
             request

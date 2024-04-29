@@ -9,4 +9,5 @@ public interface IDbService
     Task<Product?> GetProductById(int idProduct);
     Task<Order?> GetOrderByProductIdAndAmount(int idProduct, int amount);
     Task<ProductWarehouse?> GetProductWarehouseByOrderId(int orderId);
+    void UpdateOrderFulfilledAt(DateTime now);
 }
