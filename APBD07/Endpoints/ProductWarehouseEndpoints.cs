@@ -9,7 +9,7 @@ public static class ProductWarehouseEndpoints
 {
     public static void RegisterProductWarehouseEndpoints(this WebApplication app)
     {
-        var productWarehouse = app.MapGroup("Product_Warehouse");
+        var productWarehouse = app.MapGroup("ProductWarehouse");
         productWarehouse.MapPost("", AddProductWarehouse);
     }
 
@@ -38,6 +38,14 @@ public static class ProductWarehouseEndpoints
             return Results.NotFound($"Product with id: {request.IdProduct} does not exist");
         }
 
-        return Results.Created();
+        if (request.Amount < 1)
+        {
+            return Results.BadRequest($"Amount must be bigger than 0, you typed: {request.Amount} ");
+        }
+
+        return Results.Created(
+            "ProductWarehouse",
+            request
+        );
     }
 }
