@@ -1,7 +1,6 @@
 using APBD07.DTOs;
 using APBD07.Interfaces;
 using FluentValidation;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace APBD07.Endpoints;
 
@@ -41,6 +40,14 @@ public static class ProductWarehouseEndpoints
         if (request.Amount < 1)
         {
             return Results.BadRequest($"Amount must be bigger than 0, you typed: {request.Amount} ");
+        }
+
+
+        var order = await db.GetOrderByProductIdAndAmount(request.IdProduct, request.Amount);
+        if (order is null)
+        {
+            return Results.NotFound($"Order with product id: {request.IdProduct} " +
+                                    $"and amount: {@request.Amount} does not exist");
         }
 
         return Results.Created(

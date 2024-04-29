@@ -71,4 +71,31 @@ public class DbService(IConfiguration configuration) : IDbService
             Price = reader.GetDecimal(3)
         };
     }
+
+    public async Task<Order?> GetOrderByProductIdAndAmount(int id, int amount)
+    {
+        await using var connection = await GetConnection();
+        var command = new SqlCommand(
+            @"SELECT * FROM [Order] WHERE IdProduct = @id AND Amount = @amount",
+            connection
+        );
+
+        command.Parameters.AddWithValue("@id", id);
+        command.Parameters.AddWithValue("@amount", amount);
+        var reader = await command.ExecuteReaderAsync();
+        
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        return new Order()
+        {
+            Id = reader.GetInt32(0),
+            ProductId = reader.GetInt32(1),
+            Amount = reader.GetInt32(2),
+            CreatedAt = reader.GetDateTime(3),
+            FulfilledAt = reader.IsDBNull(4) ? null : reader.GetDateTime(4)
+        };
+    }
 }

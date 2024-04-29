@@ -6,5 +6,6 @@ public interface IDbService
 {
     Task<ProductWarehouse> CreateProductWareHouse();
     Task<Warehouse?> GetWarehouseById(int id);
-    Task<Product?> GetProductById(int requestIdProduct);
+    Task<Product?> GetProductById(int idProduct);
+    Task<Order?> GetOrderByProductIdAndAmount(int idProduct, int amount);
 }
