@@ -56,6 +56,12 @@ public static class ProductWarehouseEndpoints
                                       $"You type in: {request.CreatedAt}");
         }
 
+        var productWarehouse = await db.GetProductWarehouseByOrderId(order.Id);
+        if (productWarehouse is not null)
+        {
+            return Results.Conflict($"The order with id {order.Id} is already completed.");
+        }
+
         return Results.Created(
             "ProductWarehouse",
             request

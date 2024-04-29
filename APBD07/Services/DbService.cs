@@ -98,4 +98,32 @@ public class DbService(IConfiguration configuration) : IDbService
             FulfilledAt = reader.IsDBNull(4) ? null : reader.GetDateTime(4)
         };
     }
+
+    public async Task<ProductWarehouse?> GetProductWarehouseByOrderId(int orderId)
+    {
+        await using var connection = await GetConnection();
+        var command = new SqlCommand(
+            @"SELECT * FROM Product_Warehouse WHERE IdOrder = @id",
+            connection
+        );
+
+        command.Parameters.AddWithValue("@id", orderId);
+        var reader = await command.ExecuteReaderAsync();
+        
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        return new ProductWarehouse()
+        {
+            Id = reader.GetInt32(0),
+            ProductId = reader.GetInt32(1),
+            OrderId = reader.GetInt32(2),
+            WarehouseId = reader.GetInt32(3),
+            Amount = reader.GetInt32(4),
+            Price = reader.GetDecimal(5),
+            CreatedAt = reader.GetDateTime(6)
+        };
+    }
 }
