@@ -17,11 +17,7 @@ public class DbService(IConfiguration configuration) : IDbService
 
         return connection;
     }
-
-    public Task<ProductWarehouse> CreateProductWareHouse()
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public async Task<Warehouse?> GetWarehouseById(int id)
     {
@@ -136,5 +132,50 @@ public class DbService(IConfiguration configuration) : IDbService
         );
         command.Parameters.AddWithValue("@date", now);
         await command.ExecuteNonQueryAsync();
+    }
+
+    public async Task<ProductWarehouse?> InsertToProductWarehouse(int warehouseId, int productId, int orderId, int amount, DateTime createdAt)
+    {
+        await using var connection = await GetConnection();
+        var product = GetProductById(productId);
+        var price = product.Result.Price * amount;
+        var commandInsert = new SqlCommand("INSERT INTO Product_Warehouse " +
+                                           "(IdWarehouse, IdProduct, IdOrder, Amount, Price, CreatedAt) " +
+                                           "VALUES " +
+                                           "(@IdWarehouse, @IdProduct, @IdOrder, @Amount, @Price, @CreatedAt);", 
+            connection);
+        commandInsert.Parameters.AddWithValue("IdWarehouse", warehouseId);
+        commandInsert.Parameters.AddWithValue("IdProduct", productId);
+        commandInsert.Parameters.AddWithValue("IdOrder", orderId);
+        commandInsert.Parameters.AddWithValue("Amount", amount);
+        commandInsert.Parameters.AddWithValue("Price", price);
+        commandInsert.Parameters.AddWithValue("CreatedAt", createdAt);
+        await commandInsert.ExecuteNonQueryAsync();
+        return await GetLastCreatedProductWarehouse();
+    }
+
+    public async Task<ProductWarehouse?> GetLastCreatedProductWarehouse()
+    {
+        await using var connection = await GetConnection();
+        var command =
+            new SqlCommand(
+                "SELECT * FROM Product_Warehouse WHERE IdProductWarehouse =(SELECT MAX(IdProductWarehouse) FROM Product_Warehouse)",
+                connection);
+        var reader =  await command.ExecuteReaderAsync();
+        if (!await reader.ReadAsync())
+        {
+            return null;
+        }
+
+        return new ProductWarehouse()
+        {
+            Id = reader.GetInt32(0),
+            ProductId = reader.GetInt32(1),
+            OrderId = reader.GetInt32(2),
+            WarehouseId = reader.GetInt32(3),
+            Amount = reader.GetInt32(4),
+            Price = reader.GetDecimal(5),
+            CreatedAt = reader.GetDateTime(6)
+        };
     }
 }

@@ -63,10 +63,11 @@ public static class ProductWarehouseEndpoints
         }
 
         db.UpdateOrderFulfilledAt(DateTime.Now);
+        var createdProductWarehouse = await db.InsertToProductWarehouse(request.IdWarehouse, request.IdProduct, order.Id, request.Amount, DateTime.Now);
 
         return Results.Created(
             "ProductWarehouse",
-            request
+            $"Generated Product_Warehouse Id: {createdProductWarehouse.Id}"
         );
     }
 }
